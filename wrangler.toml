@@ -1,0 +1,10 @@
+name = "callbridge-pro"
+main = "worker.js"
+compatibility_date = "2024-07-01"
+
+# Cloudflare D1 Serverless SQLite Database Binding
+# After running `npx wrangler d1 create callbridge-db`, copy your database_id below:
+[[d1_databases]]
+binding = "DB"
+database_name = "callbridge-db"
+database_id = "0ca995e7-06ff-4a43-85d9-6ba0752fc983"

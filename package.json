@@ -1,15 +1,21 @@
 {
     "name": "notification-bridge",
-    "version": "1.0.0",
-    "description": "WebSocket bridge for Android call notifications",
+    "version": "2.0.0",
+    "description": "24/7 Cloud & Local Call Notification Bridge with Database & Missed Call Sync",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js"
+        "start": "node server.js",
+        "cf:login": "npx wrangler login",
+        "cf:create-db": "npx wrangler d1 create callbridge-db",
+        "cf:deploy": "npx wrangler deploy"
     },
     "dependencies": {
         "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
         "express": "^4.19.2",
+        "pg": "^8.11.3",
         "socket.io": "^4.7.5",
-        "socket.io-client": "^4.8.3"
+        "socket.io-client": "^4.8.3",
+        "sqlite3": "^5.1.7"
     }
 }

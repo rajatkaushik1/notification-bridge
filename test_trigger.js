@@ -4,14 +4,21 @@ const { io } = require("socket.io-client");
 const socket = io("http://localhost:3000");
 
 socket.on("connect", () => {
-    console.log("[+] Test client connected. Simulating a phone call...");
+    console.log("[+] Test client connected. Simulating an incoming phone call...");
 
     // Simulate the Android app sending a ringing event
-    socket.emit("phone_ringing", {
-        number: "+91-9876543210"
-    });
+    const payload = {
+        number: "+91-9876543210",
+        contactName: "Alex Rivera (Work)",
+        status: "Ringing",
+        message: "Incoming Mobile Call",
+        tag: "Work"
+    };
 
-    console.log("[+] Fake call sent! Check your laptop for a notification.");
+    socket.emit("phone_ringing", payload);
+
+    console.log("[+] Fake call sent!", payload);
+    console.log("[*] Check your laptop for a notification and check your web dashboard / history log!");
 
     // Close the script after a brief delay
     setTimeout(() => {
@@ -22,4 +29,4 @@ socket.on("connect", () => {
 socket.on("connect_error", (err) => {
     console.error("[!] Connection Error:", err.message);
     process.exit(1);
-});
+});

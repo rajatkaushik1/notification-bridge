@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CallBridge Pro — Mobile Call Notification & History Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Socket.IO Client -->
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="app-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <!-- Live Incoming Call Modal Alert -->
+    <div id="incomingCallModal" class="incoming-modal hidden">
+        <div class="incoming-modal-content glass-card">
+            <div class="pulse-ring-wrapper">
+                <div class="pulse-ring"></div>
+                <div class="call-icon">📞</div>
+            </div>
+            <div class="incoming-header">
+                <span class="incoming-tag">INCOMING MOBILE CALL</span>
+                <h2 id="modalCallerName">Unknown Contact</h2>
+                <p id="modalCallerNumber" class="phone-num">+91 00000 00000</p>
+                <div class="modal-time" id="modalCallTime">Just now</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeCallModal()">Acknowledge & View Log</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="navbar glass-header">
+        <div class="logo-area">
+            <div class="logo-icon">📡</div>
+            <div class="logo-text">
+                <h1>CallBridge <span>PRO</span></h1>
+                <p>Mobile-to-Laptop Live Notification & History Archive</p>
+            </div>
+        </div>
+        <div class="connection-pill" id="connectionStatus">
+            <span class="status-dot"></span>
+            <span class="status-label">Connecting to Bridge...</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Top Stats Row -->
+        <section class="stats-grid">
+            <div class="stat-card glass-card">
+                <div class="stat-icon">📞</div>
+                <div class="stat-info">
+                    <span class="stat-title">Total Calls Stored</span>
+                    <strong class="stat-value" id="statTotalCalls">0</strong>
+                </div>
+            </div>
+            <div class="stat-card glass-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-info">
+                    <span class="stat-title">Latest Incoming</span>
+                    <strong class="stat-value text-sm" id="statLastCall">None yet</strong>
+                </div>
+            </div>
+            <div class="stat-card glass-card">
+                <div class="stat-icon">💻</div>
+                <div class="stat-info">
+                    <span class="stat-title">Desktop Storage</span>
+                    <strong class="stat-value text-success">Persistent Sync</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs-nav glass-card">
+            <button class="tab-btn active" data-tab="history">
+                <span>📋 Stored Call Logs</span>
+            </button>
+            <button class="tab-btn" data-tab="setup">
+                <span>📱 Mobile Phone Setup Guide</span>
+            </button>
+            <button class="tab-btn" data-tab="test">
+                <span>🧪 Test Notification</span>
+            </button>
+        </nav>
+
+        <!-- Tab 1: Call History Table -->
+        <section id="tab-history" class="tab-pane active">
+            <div class="history-card glass-card">
+                <div class="history-toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchInput" placeholder="Search caller name, number, tag or notes...">
+                    </div>
+                    <div class="filter-actions">
+                        <select id="tagFilter" class="select-field">
+                            <option value="all">All Tags</option>
+                            <option value="General">General</option>
+                            <option value="Work">Work</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Spam">Spam</option>
+                            <option value="Important">Important</option>
+                        </select>
+                        <button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+                        <button class="btn btn-danger-outline" onclick="clearAllHistory()">🗑️ Clear History</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="calls-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Caller Information</th>
+                                <th>Status</th>
+                                <th>Tag</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="callsTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">Loading stored call notifications...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 2: Mobile Phone Setup Guide -->
+        <section id="tab-setup" class="tab-pane hidden">
+            <div class="setup-grid">
+                <div class="setup-card glass-card">
+                    <div class="badge badge-recommended">Recommended & Easiest</div>
+                    <h3>Method 1: MacroDroid (Android App - No Code Required)</h3>
+                    <p>Trigger instant laptop notifications when your phone rings using the free MacroDroid automation app.</p>
+                    
+                    <ol class="setup-steps">
+                        <li>Install <strong>MacroDroid</strong> from the Google Play Store.</li>
+                        <li>Tap <strong>Add Macro</strong>.</li>
+                        <li><strong>Trigger:</strong> Tap <code>Call/SMS</code> → <code>Call Incoming</code> → Select <code>Any Number</code> (or specific contacts).</li>
+                        <li><strong>Action:</strong> Tap <code>Web Interactions</code> → <code>HTTP Request</code>.</li>
+                        <li>Set Request Method to <strong>POST</strong> and enter your server URL:
+                            <div class="code-copy-box">
+                                <code id="webhookUrlDisplay">http://YOUR_LAPTOP_IP:3000/api/call</code>
+                                <button class="btn-copy" onclick="copyWebhookUrl()">Copy</button>
+                            </div>
+                        </li>
+                        <li>In Content Type choose <code>application/json</code> and paste this JSON Body:
+                            <pre class="code-block"><code>{
+  "number": "[call_number]",
+  "contactName": "[call_name]",
+  "status": "Ringing",
+  "tag": "General"
+}</code></pre>
+                        </li>
+                        <li>Save the macro. Now whenever a call arrives, your laptop rings and saves the call record!</li>
+                    </ol>
+                </div>
+
+                <div class="setup-card glass-card">
+                    <h3>Method 2: Tasker or Automate (Android)</h3>
+                    <p>If you prefer Tasker or Automate, configure an HTTP POST task triggered by <strong>Phone Ringing</strong> event.</p>
+                    <ul class="setup-list">
+                        <li><strong>URL:</strong> <code>http://YOUR_LAPTOP_IP:3000/api/call</code></li>
+                        <li><strong>Method:</strong> <code>POST</code></li>
+                        <li><strong>Headers:</strong> <code>Content-Type: application/json</code></li>
+                        <li><strong>Body:</strong> <code>{"number": "%CNUM", "contactName": "%CNAME"}</code></li>
+                    </ul>
+
+                    <div class="divider"></div>
+
+                    <h3>Method 3: Native Python Desktop Script</h3>
+                    <p>Keep <code>laptop_receiver.py</code> running in your terminal to receive native OS desktop popup notifications even when your browser is closed:</p>
+                    <pre class="code-block"><code># Start Python desktop notification receiver
+python laptop_receiver.py
+
+# View local call log in terminal
+python laptop_receiver.py --history</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: Test Trigger -->
+        <section id="tab-test" class="tab-pane hidden">
+            <div class="test-card glass-card">
+                <h3>Test Live Call Notification & Storage</h3>
+                <p>Simulate an incoming phone call right now to verify that desktop alerts, sound chimes, and persistent storage are working properly.</p>
+
+                <form id="testCallForm" class="test-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Caller Phone Number</label>
+                            <input type="text" id="testNumber" value="+91 98765 43210" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Name</label>
+                            <input type="text" id="testName" value="Priya Sharma" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Category Tag</label>
+                            <select id="testTag" class="select-field">
+                                <option value="Work">Work</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Important">Important</option>
+                                <option value="Spam">Spam</option>
+                                <option value="General">General</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Notes (Optional)</label>
+                            <input type="text" id="testNotes" placeholder="e.g. Call regarding project update">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        🚀 Simulate Incoming Call Now
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Note Edit Modal -->
+    <div id="noteModal" class="incoming-modal hidden">
+        <div class="incoming-modal-content glass-card note-modal-card">
+            <h3>Edit Call Notes & Tag</h3>
+            <input type="hidden" id="editCallId">
+            <div class="form-group">
+                <label>Tag Category</label>
+                <select id="editCallTag" class="select-field">
+                    <option value="General">General</option>
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Important">Important</option>
+                    <option value="Spam">Spam</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="editCallNotes" rows="3" placeholder="Add custom notes about this call..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeNoteModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCallNote()">Save Note</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

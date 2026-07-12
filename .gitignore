@@ -2,3 +2,13 @@ node_modules/
 __pycache__/
 *.pyc
 .env
+calls.db
+*.db
+laptop_call_history.json
+calls_history.json
+.last_seen_timestamp
+.wrangler/
+CallBridgeAndroidApp/.gradle/
+CallBridgeAndroidApp/build/
+CallBridgeAndroidApp/app/build/
+CallBridgeAndroidApp/local.properties
